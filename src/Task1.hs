@@ -19,30 +19,31 @@ class Applicative m => JoinMonad m where
 
 infixl 1 >>=
 (>>=) :: JoinMonad m => m a -> (a -> m b) -> m b
-(>>=) = error "TODO: define (>>=) in Task1"
+ma >>= f = (join . fmap f) ma
 
 infixr 1 >=>
 (>=>) :: JoinMonad m => (a -> m b) -> (b -> m c) -> (a -> m c)
-(>=>) = error "TODO: define (>=>) in Task1"
+(>=>) f g a = f a >>= g
 
 -- * Instances
 
 instance JoinMonad Identity where
   join :: Identity (Identity a) -> Identity a
-  join = error "TODO: define join (JoinMonad Identity)"
+  join (Identity x) = x
 
 instance JoinMonad Maybe where
   join :: Maybe (Maybe a) -> Maybe a
-  join = error "TODO: define join (JoinMonad Maybe)"
+  join Nothing = Nothing
+  join (Just x) = x
 
 instance JoinMonad [] where
   join :: [[a]] -> [a]
-  join = error "TODO: define join (JoinMonad [])"
+  join = concat
 
 instance (Monoid e) => JoinMonad ((,) e) where
   join :: Monoid e => (e, (e, a)) -> (e, a)
-  join = error "TODO: define join (JoinMonad ((,) e))"
+  join (e1, (e2, x)) = (e1 <> e2, x)
 
 instance JoinMonad ((->) e) where
   join :: (e -> (e -> a)) -> (e -> a)
-  join = error "TODO: define join (JoinMonad ((->) e))"
+  join f e = f e e
